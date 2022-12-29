@@ -50,6 +50,7 @@ def detect(save_img=False):
     t0 = time.time()
     img = torch.zeros((1, 3, imgsz, imgsz), device=device)  # init img
     _ = model(img.half() if half else img) if device.type != 'cpu' else None  # run once
+    start = torch_utils.time_synchronized()
     for path, img, im0s, vid_cap in dataset:
         img = torch.from_numpy(img).to(device)
         img = img.half() if half else img.float()  # uint8 to fp16/32
@@ -131,7 +132,8 @@ def detect(save_img=False):
         if platform == 'darwin' and not opt.update:  # MacOS
             os.system('open ' + save_path)
 
-    print('Done. (%.3fs)' % (time.time() - t0))
+    end = torch_utils.time_synchronized()
+    print('%d images done in (%.3fs), fps=%.1f' % (len(dataset),end-start,len(dataset)/(end-start)))
 
 
 if __name__ == '__main__':
